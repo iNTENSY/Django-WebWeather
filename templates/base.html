@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% if code_status == 'access' %}
+    <form action="{% url 'weather:first_page' %}" method="post">
+        {% csrf_token %}
+        <label for="city">Введите город:</label>
+        {{ form.name }}
+        <button type="submit">Узнать!</button>
+    </form>
+    {{ city }} - {{ weather_status }} - {{ weather_temp }}
+{% elif code_status == 'denied' %}
+    {{ city }}
+{% endif %}
+</body>
+</html>
