@@ -1,0 +1,11 @@
+{% load static %}
+
+{% if 'ясно' in weather_status.split %}
+  <link rel="icon" href="{% static 'img/sun.png' %}">
+{% elif 'облачно' in weather_status.split %}
+  <link rel="icon" href="{% static 'img/sun-cloud.png' %}">
+{% elif 'дожд' in weather_status.split %}
+  <link rel="icon" href="{% static 'img/rain-cloud.png' %}">
+{% elif 'сне' in weather_status.split or 'снеж' in weather_status.split  %}
+  <link rel="icon" href="{% static 'img/snow.png' %}">
+{% endif %}

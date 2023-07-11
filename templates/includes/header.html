@@ -1,0 +1,20 @@
+{% load static %}
+
+<div class="container">
+  <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+    <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+      <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+    </a>
+
+    <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+      <li><a href="#" class="nav-link px-3 link-secondary">Главная</a></li>
+      <li><a href="#" class="nav-link px-3 link-body-emphasis">О нас</a></li>
+    </ul>
+
+    <form class="d-flex" action="{% url 'weather:first_page' %}" method="POST">
+      {% csrf_token %}
+      {{ form.name }}
+      <button class="btn btn-outline-success" type="submit">Поиск</button>
+    </form>
+  </div>
+</div>

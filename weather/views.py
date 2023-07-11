@@ -4,6 +4,7 @@ from django.urls import reverse_lazy, reverse
 from django.views import generic
 
 from weather.forms import FindCityForm
+from weather.tasks import counter
 
 
 class WeatherPageView(generic.FormView):
@@ -15,7 +16,6 @@ class WeatherPageView(generic.FormView):
                                'weather?q={}&units=metric&lang=ru&app'
                                'id=79d1ca96933b0328e1c7e3e7a26cb347')
 
-    # todo: Создать с помощью Celery добавление счетчика для городов
     def get(self, *args, **kwargs) -> render:
         """
         Данный метод обрабатывает GET запрос как с помощью вставки
@@ -29,11 +29,13 @@ class WeatherPageView(generic.FormView):
                     self.template_name,
                     {'code_status': 'denied', 'city': 'Ваш город не был распознан!'}
                 )
+            self.start_task(self.kwargs.get('city'))
         else:
             user_ip: str = self.get_client_ip(request=self.request)
             geolocation_data: dict = self.get_geolocation_data(user_ip)
             if geolocation_data['status'] == 'success':
                 request: dict = self.get_weatherdata_for_city(geolocation_data['city'])
+                self.start_task(geolocation_data['city'])
             else:
                 request: dict = self.get_weatherdata_for_city(self.DEFAULT_CITY)
         return render(self.request, self.template_name, self.get_context_data(data=request))
@@ -77,6 +79,10 @@ class WeatherPageView(generic.FormView):
             context['weather_status'] = context['weatherdata']['weather'][0]['description']
             context['weather_temp'] = context['weatherdata']['main']['temp']
         return context
+
+    @staticmethod
+    def start_task(city: str) -> None:
+        counter.delay(city)
 
     @staticmethod
     def get_client_ip(request) -> str:
