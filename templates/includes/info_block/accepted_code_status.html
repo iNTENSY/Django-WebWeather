@@ -1,0 +1,9 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<div class="weather-wrapper">
+  <div class="weather-card">
+    <h1>{{ weather_temp }}ºC</h1>
+    <p class="city">{{ city }}</p>
+    <p class="weather_status">{{ weather_status }}</p>
+  </div>
+</div>

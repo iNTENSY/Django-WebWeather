@@ -14,12 +14,12 @@
     </header>
   </div>
   <main>
-    <div class="container" style="background-color: #0f5132">
+    <div class="container">
       {% block content %}
         {% if code_status == 'access' %}
-          {{ city }} - {{ weather_status }} - {{ weather_temp }}
+          {% include 'includes/info_block/accepted_code_status.html' %}
           {% elif code_status == 'denied' %}
-          {{ city }}
+          {% include 'includes/info_block/denied_code_status.html' %}
         {% endif %}
       {% endblock %}
     </div>

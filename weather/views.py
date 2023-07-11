@@ -1,3 +1,6 @@
+import os.path
+
+import environ
 import requests
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
@@ -5,6 +8,11 @@ from django.views import generic
 
 from weather.forms import FindCityForm
 from weather.tasks import counter
+from djangoWeather.settings import BASE_DIR
+
+
+env = environ.Env()
+env.read_env(os.path.join(BASE_DIR), '.env')
 
 
 class WeatherPageView(generic.FormView):
@@ -14,7 +22,11 @@ class WeatherPageView(generic.FormView):
     FIND_CITY_BY_IP_URL: str = 'http://ip-api.com/json/{}?lang=ru'
     OPENWEATHERMAP_URL: str = ('https://api.openweathermap.org/data/2.5/'
                                'weather?q={}&units=metric&lang=ru&app'
-                               'id=79d1ca96933b0328e1c7e3e7a26cb347')
+                               f'id={env.str("WEATHER_APP_ID")}')
+    MORE_DATA_OPENWEATHERMAP_URL: str = (
+        'https://api.openweathermap.org/data/2.5'
+        f'/forecast?appid={env.str("WEATHER_APP_ID")}&'
+        'lang=ru&q={}')
 
     def get(self, *args, **kwargs) -> render:
         """
@@ -77,7 +89,7 @@ class WeatherPageView(generic.FormView):
             context['weatherdata'] = data
             context['city'] = context['weatherdata']['name']
             context['weather_status'] = context['weatherdata']['weather'][0]['description']
-            context['weather_temp'] = context['weatherdata']['main']['temp']
+            context['weather_temp'] = round(context['weatherdata']['main']['temp'])
         return context
 
     @staticmethod
