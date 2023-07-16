@@ -135,3 +135,16 @@ CACHES = {
         }
     }
 }
+
+# Django Rest Framework
+REST_FRAMEWORK = {
+    'DATETIME_FORMAT': "%m.%d.%Y %H:%M:%S",
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '5/min',
+        'user': '7/min',
+    }
+}

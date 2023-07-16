@@ -1,32 +1,24 @@
-import os.path
-
-import environ
 import requests
+from django.db.models import Max
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.views import APIView
 
 from weather.forms import FindCityForm
+from weather.models import Cities
+from weather.serializers import CitySerializer
 from weather.tasks import counter
-from djangoWeather.settings import BASE_DIR
+from weather.mixins import UrlMixin
 
 
-env = environ.Env()
-env.read_env(os.path.join(BASE_DIR), '.env')
-
-
-class WeatherPageView(generic.FormView):
+class WeatherPageView(UrlMixin, generic.FormView):
     form_class = FindCityForm
     template_name: str = 'base.html'
     DEFAULT_CITY: str = 'Moscow'
-    FIND_CITY_BY_IP_URL: str = 'http://ip-api.com/json/{}?lang=ru'
-    OPENWEATHERMAP_URL: str = ('https://api.openweathermap.org/data/2.5/'
-                               'weather?q={}&units=metric&lang=ru&app'
-                               f'id={env.str("WEATHER_APP_ID")}')
-    MORE_DATA_OPENWEATHERMAP_URL: str = (
-        'https://api.openweathermap.org/data/2.5'
-        f'/forecast?appid={env.str("WEATHER_APP_ID")}&'
-        'lang=ru&q={}')
 
     def get(self, *args, **kwargs) -> render:
         """
@@ -55,7 +47,8 @@ class WeatherPageView(generic.FormView):
     def post(self, *args, **kwargs):
         """
         Данный метод используется, когда пользователь запросил данные
-        с помощью специальной формы. После этого, программа ...
+        с помощью специальной формы. После этого, программа
+        использует redirect на главную страницу.
         """
         city = self.request.POST.get('name')
         if city:
@@ -94,6 +87,7 @@ class WeatherPageView(generic.FormView):
 
     @staticmethod
     def start_task(city: str) -> None:
+        """Данный метод вызывает асинхронную задачу."""
         counter.delay(city)
 
     @staticmethod
@@ -108,5 +102,63 @@ class WeatherPageView(generic.FormView):
 
 
 class RedirectToView(generic.RedirectView):
+    """Данный класс перенаправляет пользователя на домашнюю страницу."""
     def get_redirect_url(self, *args, **kwargs) -> str:
         return reverse_lazy('weather:first_page')
+
+
+class FrequentlySearchedAPIView(APIView):
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+
+    def get(self, request, *args, **kwargs) -> Response:
+        """
+        Данная функция возвращает из БД данные города(ов),
+        который пользователи ищут чаще всего.
+        Переменная max_searches означает самое большое число в
+        строке модели total_searches из всех городов.
+        """
+        max_searches: int = Cities.objects.aggregate(Max('total_searches'))['total_searches__max']
+        cities: Cities = Cities.objects.filter(total_searches=max_searches)
+        serializer = CitySerializer(cities, many=True)
+        return Response({'city': serializer.data})
+
+
+class WeatherDataAPIView(UrlMixin, APIView):
+    """
+    Данный класс возвращает информацию по погоде на день
+    в определенном городе.
+    Класс использует ограниченное количество запросов в минуту.
+    'anon': '5/min'
+    'user': '7/min'
+    """
+    throttle_classes = (UserRateThrottle, AnonRateThrottle)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            city: str = self.kwargs['city']
+            url: str = (self.OPENWEATHERMAP_URL.format(city)
+                        if not args else self.MORE_DATA_OPENWEATHERMAP_URL.format(city))
+            response = requests.get(url).json()
+            if response['cod'] == '404':
+                raise ValueError
+        except ValueError:
+            return Response(
+                {'city': 'Данного города не существует или вы ввели неверные данные.'}
+            )
+        return Response(data=response)
+
+
+class DetailWeatherDataAPIView(WeatherDataAPIView):
+    """
+    Данный класс основан на WeatherDataAPIView, при этом
+    передает параметр True в WeatherDataAPIView.get(), а конкретнее
+    в args. Таким образом возвращается детальная информация по погоде
+    в городе с периодом в 3 часа.
+    Данный класс может быть использован авторизованными пользователями,
+    у которых также реализован лимит запросов в минуту.
+    """
+    throttle_classes = (UserRateThrottle,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        return super(DetailWeatherDataAPIView, self).get(request, True)

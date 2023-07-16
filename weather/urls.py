@@ -1,11 +1,11 @@
 from django.urls import path
 
-from .views import WeatherPageView, RedirectToView
+from . import views
 
 app_name: str = 'weather'
 
 urlpatterns = [
-    path('', RedirectToView.as_view(), name='redirect'),
-    path('weatherfinder/', WeatherPageView.as_view(), name='first_page'),
-    path('weatherfinder/<str:city>', WeatherPageView.as_view(), name='page_for_find_city_by_name')
+    path('', views.RedirectToView.as_view(), name='redirect'),
+    path('weatherfinder/', views.WeatherPageView.as_view(), name='first_page'),
+    path('weatherfinder/<str:city>/', views.WeatherPageView.as_view(), name='page_for_find_city_by_name'),
 ]
