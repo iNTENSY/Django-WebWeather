@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'weather',
+    'weather.apps.WeatherConfig',
+    'users.apps.UserConfig',
 ]
 
 MIDDLEWARE = [
@@ -93,6 +94,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'users.User'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -129,7 +132,7 @@ REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -140,11 +143,13 @@ CACHES = {
 REST_FRAMEWORK = {
     'DATETIME_FORMAT': "%m.%d.%Y %H:%M:%S",
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
+        # 'rest_framework.throttling.AnonRateThrottle',
+        # 'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/min',
-        'user': '7/min',
+        'anon': '1/min',
+        'user': '2/min',
+        'premium': '3/min',
     }
 }
