@@ -6,6 +6,8 @@ from weather import api
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('weather.urls', namespace='weather')),
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.authtoken')),
     path('api/mostsearchedcity/', api.FrequentlySearchedAPIView.as_view()),
     path('api/weatherdata/<str:city>/', api.WeatherDataAPIView.as_view()),
     path('api/moreweatherdata/<str:city>/', api.DetailWeatherDataAPIView.as_view()),

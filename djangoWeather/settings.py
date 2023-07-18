@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'weather.apps.WeatherConfig',
     'users.apps.UserConfig',
 ]
@@ -143,13 +145,16 @@ CACHES = {
 REST_FRAMEWORK = {
     'DATETIME_FORMAT': "%m.%d.%Y %H:%M:%S",
     'DEFAULT_THROTTLE_CLASSES': [
-        # 'rest_framework.throttling.AnonRateThrottle',
-        # 'rest_framework.throttling.UserRateThrottle',
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '1/min',
         'user': '2/min',
         'premium': '3/min',
-    }
+    },
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+      'rest_framework.authentication.SessionAuthentication',
+      'rest_framework.authentication.BasicAuthentication',
+      'rest_framework.authentication.TokenAuthentication',
+    ],
 }

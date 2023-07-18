@@ -1,4 +1,6 @@
 from django.db.models import Max
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle
@@ -12,6 +14,7 @@ from weather.serializers import CitySerializer
 class FrequentlySearchedAPIView(APIView):
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
 
+    @method_decorator(cache_page(60))
     def get(self, request, *args, **kwargs) -> Response:
         """
         Данная функция возвращает из БД данные города(ов),
@@ -30,31 +33,33 @@ class WeatherDataAPIView(OpenWeatherMixin, APIView):
     """
     Данный класс возвращает информацию по погоде на день
     в определенном городе.
-    Класс использует ограниченное количество запросов в минуту.
-    'anon': '5/min'
-    'user': '7/min'
+    Данный класс может быть использован анонимными пользователями,
+    у которых реализован лимит запросов.
+    Данный класс может быть использован премиум-пользователями, у которых
+    реализован свой лимит запросов.
     """
-    throttle_scope = 'user'
+    throttle_classes: list = []
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Response:
+        self.throttle_classes.append(AnonRateThrottle if request.user.is_anonymous else UserRateThrottle)
         response: dict = self.get_weatherdata_for_day(self.kwargs.get('city'))
         return Response(data=response)
 
 
 class DetailWeatherDataAPIView(OpenWeatherMixin, APIView):
     """
-    Данный класс основан на WeatherDataAPIView, при этом
-    передает параметр True в WeatherDataAPIView.get(), а конкретнее
-    в args. Таким образом возвращается детальная информация по погоде
-    в городе с периодом в 3 часа.
+    Данный класс использует OpenWeatherMixin для возврата детальной информации
+    по погоде через каждые 3 часа.
     Данный класс может быть использован авторизованными пользователями,
-    у которых также реализован лимит запросов в минуту.
+    у которых реализован лимит запросов.
+    Данный класс может быть использован премиум-пользователями, у которых
+    реализован свой лимит запросов.
     """
     permission_classes: tuple = (IsAuthenticated,)
     throttle_classes: list = []
     throttle_scope: str = 'premium'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Response:
         self.throttle_classes.append(ScopedRateThrottle if request.user.user_status == 'Premium' else UserRateThrottle)
         response: dict = self.get_weatherdata_every_3h(self.kwargs.get('city'))
         return Response(data=response)

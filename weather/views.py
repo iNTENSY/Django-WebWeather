@@ -1,16 +1,9 @@
 import requests
-from django.db.models import Max
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
-from rest_framework.views import APIView
 
 from weather.forms import FindCityForm
-from weather.models import Cities
-from weather.serializers import CitySerializer
 from weather.tasks import counter
 from weather.mixins import UrlMixin
 
