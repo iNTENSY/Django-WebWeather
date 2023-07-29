@@ -1,4 +1,4 @@
-from django.db.models import Max
+from django.db.models import Max, Min
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework.permissions import IsAuthenticated
@@ -41,7 +41,9 @@ class WeatherDataAPIView(OpenWeatherMixin, APIView):
     throttle_classes: list = []
 
     def get(self, request, *args, **kwargs) -> Response:
-        self.throttle_classes.append(AnonRateThrottle if request.user.is_anonymous else UserRateThrottle)
+        self.throttle_classes.append(
+            AnonRateThrottle if request.user.is_anonymous else UserRateThrottle
+        )
         response: dict = self.get_weatherdata_for_day(self.kwargs.get('city'))
         return Response(data=response)
 
@@ -60,6 +62,38 @@ class DetailWeatherDataAPIView(OpenWeatherMixin, APIView):
     throttle_scope: str = 'premium'
 
     def get(self, request, *args, **kwargs) -> Response:
-        self.throttle_classes.append(ScopedRateThrottle if request.user.user_status == 'Premium' else UserRateThrottle)
+        self.throttle_classes.append(
+            ScopedRateThrottle if request.user.user_status == 'Premium' else UserRateThrottle
+        )
         response: dict = self.get_weatherdata_every_3h(self.kwargs.get('city'))
         return Response(data=response)
+
+
+class NotFrequentlySearchedAPIView(APIView):
+    throttle_classes = (UserRateThrottle, AnonRateThrottle)
+
+    @method_decorator(cache_page(60))
+    def get(self, request, *args, **kwargs) -> Response:
+        """
+        Данная функция возвращает из БД данные города(ов),
+        который пользователи не ищут чаще всего.
+        Переменная min_searches означает самое минимальное число в
+        строке модели total_searches из всех городов.
+        """
+        min_searches: int = Cities.objects.aggregate(Min('total_searches'))['total_searches__min']
+        cities: Cities = Cities.objects.filter(total_searches=min_searches)
+        serializer = CitySerializer(cities, many=True)
+        return Response({'city': serializer.data})
+
+
+class GetStatisticAPIView(APIView):
+    @method_decorator(cache_page(60))
+    def get(self, request, *args, **kwargs) -> Response:
+        """
+        """
+        try:
+            city: Cities = Cities.objects.get(name=self.kwargs['city'])
+        except Cities.DoesNotExist:
+            return Response({'city': f'Для города "{self.kwargs["city"]}" данных нет.'})
+        serializer = CitySerializer(city)
+        return Response({'city': serializer.data})
