@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy, reverse
-from django.views import generic
+from django.views import generic, View
 
 from users import forms
 
@@ -25,3 +25,10 @@ class SignUpView(generic.CreateView):
         if self.request.user.is_authenticated:
             return redirect(reverse('weather:first_page'))
         return super(SignUpView, self).get(request, *args, **kwargs)
+
+
+class ConfirmationView(generic.TemplateView):
+    def get(self, request, *args, **kwargs):
+        print(f'{kwargs=}')
+        print(f'{args=}')
+        return render(self.request, 'payment/confirmation.html')
