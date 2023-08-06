@@ -10,7 +10,8 @@ class Cities(models.Model):
     """
     name = models.CharField(
         verbose_name='Название города',
-        max_length=40
+        max_length=40,
+        db_index=True
     )
     total_searches = models.IntegerField(
         verbose_name='Количество поиска',

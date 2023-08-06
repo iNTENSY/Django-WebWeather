@@ -7,8 +7,8 @@
     </a>
 
     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-      <li><a href="#" class="nav-link px-3 link-secondary">Главная</a></li>
-      <li><a href="#" class="nav-link px-3 link-body-emphasis">О нас</a></li>
+      <li><a href="{% url 'weather:first_page' %}" class="nav-link px-3 link-secondary">Главная</a></li>
+      <li><a href="#" class="nav-link px-3 link-body-emphasis">Топ-лист поисков</a></li>
     </ul>
 
     <form class="d-flex" action="{% url 'weather:first_page' %}" method="POST">
@@ -16,5 +16,12 @@
       {{ form.name }}
       <button class="btn btn-outline-success" type="submit">Поиск</button>
     </form>
+    <ul class="nav col-12 col-lg-auto justify-content-center mb-md-0">
+      {% if request.user.is_authenticated %}
+        <li><a href="#" class="nav-link px-3 link-secondary">{{ request.user.username }}</a></li>
+      {% else %}
+        <li><a href="#" class="nav-link px-3 link-secondary">Войти</a></li>
+      {% endif %}
+    </ul>
   </div>
 </div>
