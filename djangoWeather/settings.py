@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
     'djoser',
     'weather.apps.WeatherConfig',
     'users.apps.UserConfig',
@@ -125,9 +126,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static/']
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Celery
-# celery -A djangoWeather worker --pool=solo -l info
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+# command: celery -A djangoWeather worker --pool=solo -l info
+CELERY_BROKER_URL = f'redis://{os.environ.get("REDIS_HOST", "127.0.0.1")}:{os.environ.get("REDIS_PORT", "6379")}/0'
+CELERY_RESULT_BACKEND = f'redis://{os.environ.get("REDIS_HOST", "127.0.0.1")}:{os.environ.get("REDIS_PORT", "6379")}/0'
 
 # Cache
 REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
@@ -150,9 +151,9 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '1/min',
-        'user': '2/min',
-        'premium': '3/min',
+        'anon': '10/min',
+        'user': '20/min',
+        'premium': '30/min',
     },
     'DEFAULT_AUTHENTICATION_CLASSES': [
       'rest_framework.authentication.SessionAuthentication',

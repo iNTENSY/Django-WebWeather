@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy, reverse
-from django.views import generic, View
+from django.urls import reverse
+from django.views import generic
 
 from users import forms
 
@@ -29,6 +29,4 @@ class SignUpView(generic.CreateView):
 
 class ConfirmationView(generic.TemplateView):
     def get(self, request, *args, **kwargs):
-        print(f'{kwargs=}')
-        print(f'{args=}')
         return render(self.request, 'payment/confirmation.html')
