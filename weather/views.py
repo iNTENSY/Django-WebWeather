@@ -1,9 +1,13 @@
+from typing import Any
+
 import requests
+from django.db.models import QuerySet
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.views import generic
 
 from weather.forms import FindCityForm
+from weather.models import Cities
 from weather.tasks import counter
 from weather.mixins import UrlMixin
 
@@ -19,7 +23,7 @@ class WeatherPageView(UrlMixin, generic.FormView):
         города в строку запроса, так и обработку с помощью формы.
         """
         if self.kwargs.get('city'):
-            request: dict = requests.get(self.OPENWEATHERMAP_URL.format(self.kwargs['city'])).json()
+            request = requests.get(self.OPENWEATHERMAP_URL.format(self.kwargs['city'])).json()
             if request['cod'] == '404':
                 return render(
                     self.request,
@@ -48,20 +52,20 @@ class WeatherPageView(UrlMixin, generic.FormView):
             return redirect(reverse('weather:page_for_find_city_by_name', kwargs={'city': city}))
         return redirect(reverse('weather:first_page'))
 
-    def get_geolocation_data(self, ip: str) -> dict:
+    def get_geolocation_data(self, ip: str):
         """
         Данный метод получает и возвращает ответ от API сервиса
         в формате JSON, определяя в нем город с которого произошел запрос.
         """
-        data: dict = requests.get(self.FIND_CITY_BY_IP_URL.format(ip)).json()
+        data = requests.get(self.FIND_CITY_BY_IP_URL.format(ip)).json()
         return data
 
-    def get_weatherdata_for_city(self, city: str) -> dict:
+    def get_weatherdata_for_city(self, city: str):
         """
         Данный метод получает и возвращает ответ от API сервиса
         в формате JSON, определяя в нем данные с погодой в городе.
         """
-        data: dict = requests.get(self.OPENWEATHERMAP_URL.format(city)).json()
+        data = requests.get(self.OPENWEATHERMAP_URL.format(city)).json()
         return data
 
     def get_context_data(self, data: dict = None) -> dict:
@@ -69,7 +73,7 @@ class WeatherPageView(UrlMixin, generic.FormView):
         Переопределение родительского метода, для добавления в него
         удобного формата вывода погоды, статуса погоды и температуру запрашиваемого города.
         """
-        context: dict = super(WeatherPageView, self).get_context_data()
+        context: dict[str, Any] = super(WeatherPageView, self).get_context_data()
         if data is not None and data['cod'] != '404':
             context['code_status'] = 'access'
             context['weatherdata'] = data
@@ -80,7 +84,7 @@ class WeatherPageView(UrlMixin, generic.FormView):
 
     @staticmethod
     def start_task(city: str) -> None:
-        """Данный метод вызывает асинхронную задачу."""
+        """Данный метод вызывает параллельную задачу."""
         counter.delay(city)
 
     @staticmethod
@@ -98,3 +102,17 @@ class RedirectToView(generic.RedirectView):
     """Данный класс перенаправляет пользователя на домашнюю страницу."""
     def get_redirect_url(self, *args, **kwargs) -> str:
         return reverse_lazy('weather:first_page')
+
+
+class RatingView(generic.ListView):
+    template_name: str = 'weather/rating.html'
+    context_object_name: str = 'cities'
+
+    def get_queryset(self):
+        q: QuerySet[Cities] = Cities.objects.all().order_by('-total_searches')[:10]
+        return q
+
+    def get_context_data(self, *, object_list=None, **kwargs) -> dict:
+        context: dict[str, Any] = super().get_context_data()
+        context['form'] = FindCityForm()
+        return context

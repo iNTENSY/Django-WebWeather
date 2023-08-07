@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from weather.mixins import OpenWeatherMixin
 from weather.models import Cities
 from weather.serializers import CitySerializer
+from .tasks import counter
 
 
 class FrequentlySearchedAPIView(APIView):
@@ -87,13 +88,17 @@ class NotFrequentlySearchedAPIView(APIView):
 
 
 class GetStatisticAPIView(APIView):
-    @method_decorator(cache_page(60))
+    """
+    Данный класс возвращает пользователю статистику по конкретному городу.
+    """
+    @method_decorator(cache_page(30))
     def get(self, request, *args, **kwargs) -> Response:
-        """
-        """
+        city_name = self.kwargs.get('city')
+
         try:
-            city: Cities = Cities.objects.get(name=self.kwargs['city'])
+            city: Cities = Cities.objects.get(name=city_name)
+            counter.delay(city)
         except Cities.DoesNotExist:
-            return Response({'city': f'Для города "{self.kwargs["city"]}" данных нет.'})
+            return Response({'city': f'Для города "{city_name}" данных нет.'})
         serializer = CitySerializer(city)
         return Response({'city': serializer.data})
