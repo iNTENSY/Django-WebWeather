@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% for city in cities %}
+  	{{ city.name }}: {{ city.total_searches }} | Last search: {{ city.last_search }} <br>
+  {% endfor %}
+{% endblock %}

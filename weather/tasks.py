@@ -22,11 +22,11 @@ def counter(city: str) -> str:
         record.total_searches += 1
         record.last_search = timezone.now()
         record.save()
-        return 'New settings saved'
+        return f'New settings saved for {record.name}'
     else:
-        Cities.objects.create(
+        record = Cities.objects.create(
             name=city.capitalize(),
             total_searches=1,
             last_search=date
         )
-        return 'New object created!'
+        return f'New object "{record.name}" created!'

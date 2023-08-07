@@ -4,9 +4,10 @@ from django.urls import reverse
 from django.views import generic
 
 from users import forms
+from users.mixins import IsAuthenticatedMixin
 
 
-class SignInView(LoginView):
+class SignInView(IsAuthenticatedMixin, LoginView):
     form_class = forms.LoginForm
     template_name: str = 'users/login.html'
 
@@ -14,17 +15,12 @@ class SignInView(LoginView):
         return reverse('weather:first_page')
 
 
-class SignUpView(generic.CreateView):
+class SignUpView(IsAuthenticatedMixin, generic.CreateView):
     form_class = forms.RegistrationForm
     template_name = 'users/registration.html'
 
     def get_success_url(self):
         return reverse('weather:first_page')
-
-    def get(self, request, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return redirect(reverse('weather:first_page'))
-        return super(SignUpView, self).get(request, *args, **kwargs)
 
 
 class ConfirmationView(generic.TemplateView):
