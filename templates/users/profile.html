@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <style>
+
+    details > summary {
+        padding: 5px;
+        background-color: #eee;
+        color: #333;
+        border: 1px #ccc solid;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    details > div {
+        border: 1px #ccc solid;
+        padding: 10px;
+    }
+
+details[open] > summary {
+    color:#eee;
+   background-color:#333;
+}
+summary:before {
+   content: "+";
+   font-size: 20px;
+   font-weight: bold;
+   margin: -5px 5px 0 0;
+}
+
+details[open] summary:before {
+   content: "-";
+}
+</style>
+
+  <div class="modal modal-sheet position-static d-block bg-body-secondary p-4 py-md-5" tabindex="-1" role="dialog" id="modalTour">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-body p-5">
+{#        <h2 class="fw-bold mb-0">Профиль: {{ profile.username }}</h2>#}
+
+        <ul class="d-grid my-3 list-unstyled small">
+          <li class="mx-auto justify-content-center">
+            <div>
+              <img src="{% static 'img/avatar1.png' %}" alt="#" style="object-fit: contain" width="150px" height="150px">
+            </div>
+          </li>
+          <li class="mx-auto justify-content-center mb-4">
+            <svg class="bi text-body-secondary flex-shrink-0" width="48" height="48"><use xlink:href="#grid-fill"></use></svg>
+            <div>
+              <h5 class="mb-0">Профиль: {{ profile.username }}</h5>
+            </div>
+          </li>
+          <li class="d-flex gap-4 mb-2">
+            <svg class="bi text-body-secondary flex-shrink-0" width="48" height="48"><use xlink:href="#grid-fill"></use></svg>
+            <div>
+              <h5 class="mb-0">Статус аккаунта</h5>
+              {{ profile.user_status.capitalize }}
+            </div>
+          </li>
+          <li class="d-flex gap-4">
+            <svg class="bi text-warning flex-shrink-0" width="48" height="48"><use xlink:href="#bookmark-star"></use></svg>
+            <div>
+              <details>
+                <summary class="mb-0">Ваш персональный токен для входа</summary>
+                <div>{{ token }}</div>
+              </details>
+            </div>
+          </li>
+        </ul>
+        <button type="button" class="btn btn-lg btn-primary  w-100" data-bs-dismiss="modal">Настройки</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

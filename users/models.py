@@ -2,7 +2,7 @@ import datetime as dt
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.shortcuts import get_object_or_404
