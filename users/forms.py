@@ -56,3 +56,43 @@ class RegistrationForm(UserCreationForm):
     class Meta:
         model: User = User
         fields: tuple[str] = ('username', 'password1', 'password2')
+
+
+class ProfileSettingsForm(forms.ModelForm):
+    old_password = forms.CharField(
+        label='Старый пароль',
+        widget=forms.PasswordInput(
+            attrs={
+                'type': 'password',
+                'class': 'form-control mb-1',
+                'id': 'floatingPassword1',
+                'placeholder': 'Введите ваш старый пароль'
+            }
+        )
+    )
+    new_password1 = forms.CharField(
+        label='Новый пароль',
+        widget=forms.PasswordInput(
+            attrs={
+                'type': 'password',
+                'class': 'form-control mb-1',
+                'id': 'floatingPassword2',
+                'placeholder': 'Введите ваш новый пароль'
+            }
+        )
+    )
+    new_password2 = forms.CharField(
+        label='Повтор нового пароля',
+        widget=forms.PasswordInput(
+            attrs={
+                'type': 'password',
+                'class': 'form-control mb-1',
+                'id': 'floatingPassword3',
+                'placeholder': 'Введите ваш новый пароль'
+            }
+        )
+    )
+
+    class Meta:
+        model = User
+        fields: tuple[str] = ('old_password','new_password1','new_password2')

@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import environ
+from django.urls import reverse_lazy
 from yookassa import Configuration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -101,6 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
+LOGOUT_REDIRECT_URL = reverse_lazy('weather:first_page')
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

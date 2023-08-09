@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+  <div class="modal modal-sheet position-static d-block bg-body-secondary p-4 py-md-5" tabindex="-1" role="dialog" id="modalTour">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-body p-5">
+          <form action="{% url 'user:settings' request.user.pk %}" method="post">
+            {% csrf_token %}
+            {{ settings_form.as_p }}
+            <button type="submit" class="btn btn-lg btn-primary  w-100" data-bs-dismiss="modal">Сохранить</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

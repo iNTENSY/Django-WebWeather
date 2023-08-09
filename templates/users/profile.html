@@ -2,44 +2,11 @@
 {% load static %}
 
 {% block content %}
-  <style>
-
-    details > summary {
-        padding: 5px;
-        background-color: #eee;
-        color: #333;
-        border: 1px #ccc solid;
-        cursor: pointer;
-        list-style: none;
-    }
-
-    details > div {
-        border: 1px #ccc solid;
-        padding: 10px;
-    }
-
-details[open] > summary {
-    color:#eee;
-   background-color:#333;
-}
-summary:before {
-   content: "+";
-   font-size: 20px;
-   font-weight: bold;
-   margin: -5px 5px 0 0;
-}
-
-details[open] summary:before {
-   content: "-";
-}
-</style>
-
+  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
   <div class="modal modal-sheet position-static d-block bg-body-secondary p-4 py-md-5" tabindex="-1" role="dialog" id="modalTour">
   <div class="modal-dialog" role="document">
     <div class="modal-content rounded-4 shadow">
       <div class="modal-body p-5">
-{#        <h2 class="fw-bold mb-0">Профиль: {{ profile.username }}</h2>#}
-
         <ul class="d-grid my-3 list-unstyled small">
           <li class="mx-auto justify-content-center">
             <div>
@@ -69,7 +36,9 @@ details[open] summary:before {
             </div>
           </li>
         </ul>
-        <button type="button" class="btn btn-lg btn-primary  w-100" data-bs-dismiss="modal">Настройки</button>
+        <a href="{% url 'user:settings' request.user.pk %}" type="button" class="btn btn-lg btn-primary  w-100" data-bs-dismiss="modal">
+          Настройки
+        </a>
       </div>
     </div>
   </div>
