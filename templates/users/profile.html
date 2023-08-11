@@ -16,14 +16,23 @@
           <li class="mx-auto justify-content-center mb-4">
             <svg class="bi text-body-secondary flex-shrink-0" width="48" height="48"><use xlink:href="#grid-fill"></use></svg>
             <div>
-              <h5 class="mb-0">Профиль: {{ profile.username }}</h5>
+{#              <h5 class="mb-0">Профиль: {{ profile.username }}</h5>#}
+              <h5 class="mb-0">Профиль: {{ user.username }}</h5>
             </div>
           </li>
           <li class="d-flex gap-4 mb-2">
             <svg class="bi text-body-secondary flex-shrink-0" width="48" height="48"><use xlink:href="#grid-fill"></use></svg>
             <div>
               <h5 class="mb-0">Статус аккаунта</h5>
-              {{ profile.user_status.capitalize }}
+{#              {{ profile.user_status.capitalize }}#}
+              {{ user.user_status.capitalize }}
+            </div>
+          </li>
+          <li class="d-flex gap-4 mb-2">
+            <svg class="bi text-body-secondary flex-shrink-0" width="48" height="48"><use xlink:href="#grid-fill"></use></svg>
+            <div>
+              <h5 class="mb-0">Дата окончания подписки</h5>
+              {{ end_date }}
             </div>
           </li>
           <li class="d-flex gap-4">

@@ -2,9 +2,12 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
+from django.db.models import Max
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import generic
+from django.views.decorators.cache import cache_page
 from rest_framework.authtoken.models import Token
 
 from users import forms
@@ -36,18 +39,19 @@ class SignUpView(IsAuthenticatedMixin, generic.CreateView):
         return reverse('weather:first_page')
 
 
-class ProfileView(LoginRequiredMixin, RedirectToProfileMixin, generic.DetailView):
+@method_decorator(cache_page(60*5), name='dispatch')
+class ProfileView(LoginRequiredMixin, RedirectToProfileMixin, generic.FormView):
     """
     Данный класс отображает страницу профиля пользователя исключительно для своего аккаунта.
     """
-    model = User
-    context_object_name: str = 'profile'
+    form_class = FindCityForm
     template_name: str = 'users/profile.html'
     login_url = reverse_lazy('user:sign-in')
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context: dict[str, Any] = super().get_context_data()
-        context['token'] = Token.objects.get(user=self.request.user)
+        context['end_date'] = self.request.user.subscription.aggregate(Max('end_date'))['end_date__max']
+        context['token'] = Token.objects.get(user=self.request.user).key
         return context
 
 

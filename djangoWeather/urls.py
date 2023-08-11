@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
@@ -16,3 +17,6 @@ urlpatterns = [
     path('api/weatherdata/<str:city>/', api.WeatherDataAPIView.as_view()),
     path('api/moreweatherdata/<str:city>/', api.DetailWeatherDataAPIView.as_view()),
 ] + doc_url
+
+if settings.DEBUG:
+    urlpatterns.append(path('__debug__/', include('debug_toolbar.urls')))

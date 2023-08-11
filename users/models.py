@@ -64,7 +64,8 @@ class PaymentModel(models.Model):
         verbose_name='Пользователь',
         to='User',
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        related_name='payment'
     )
     uuid = models.UUIDField(
         verbose_name='Уникальный код'

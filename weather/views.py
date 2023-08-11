@@ -4,7 +4,9 @@ import requests
 from django.db.models import QuerySet
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
 from django.views import generic
+from django.views.decorators.cache import cache_page
 
 from weather.forms import FindCityForm
 from weather.models import Cities
@@ -104,6 +106,7 @@ class RedirectToView(generic.RedirectView):
         return reverse_lazy('weather:first_page')
 
 
+@method_decorator(cache_page(60*5), name='dispatch')
 class RatingView(generic.ListView):
     template_name: str = 'weather/rating.html'
     context_object_name: str = 'cities'
