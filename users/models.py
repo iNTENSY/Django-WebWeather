@@ -1,11 +1,13 @@
 import datetime as dt
+import uuid
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from rest_framework.authtoken.models import Token
 
 
 class User(AbstractUser):
@@ -62,7 +64,8 @@ class PaymentModel(models.Model):
         verbose_name='Пользователь',
         to='User',
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        related_name='payment'
     )
     uuid = models.UUIDField(
         verbose_name='Уникальный код'
@@ -83,6 +86,12 @@ class PaymentModel(models.Model):
 
     def __str__(self) -> str:
         return f'{self.uuid}'
+
+
+@receiver(post_save, sender=User)
+def user_token_handler(instance: User, **kwargs):
+    if not Token.objects.filter(user=instance):
+        Token(key=uuid.uuid4(), user=instance).save()
 
 
 @receiver(pre_save, sender=Subscription)

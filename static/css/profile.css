@@ -1,0 +1,28 @@
+details > summary {
+        padding: 5px;
+        background-color: #eee;
+        color: #333;
+        border: 1px #ccc solid;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    details > div {
+        border: 1px #ccc solid;
+        padding: 10px;
+    }
+
+details[open] > summary {
+    color:#eee;
+   background-color:#333;
+}
+summary:before {
+   content: "+";
+   font-size: 20px;
+   font-weight: bold;
+   margin: -5px 5px 0 0;
+}
+
+details[open] summary:before {
+   content: "-";
+}

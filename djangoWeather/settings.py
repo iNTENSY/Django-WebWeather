@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import environ
+from django.urls import reverse_lazy
 from yookassa import Configuration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,6 +21,7 @@ DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
 
@@ -34,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     'djoser',
+    'debug_toolbar',
     'weather.apps.WeatherConfig',
     'users.apps.UserConfig',
     'yookassa'
@@ -47,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'djangoWeather.urls'
@@ -101,6 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.User'
 
+LOGOUT_REDIRECT_URL = reverse_lazy('weather:first_page')
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

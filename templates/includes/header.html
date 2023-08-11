@@ -10,16 +10,17 @@
       <li><a href="{% url 'weather:first_page' %}" class="nav-link px-3 link-secondary">Главная</a></li>
       <li><a href="{% url 'weather:ratings' %}" class="nav-link px-3 link-body-emphasis">Топ-лист поисков</a></li>
     </ul>
-
-    <form class="d-flex" action="{% url 'weather:first_page' %}" method="POST">
+    {% if form %}
+    	<form class="d-flex" action="{% url 'weather:first_page' %}" method="POST">
       {% csrf_token %}
       <button class="btn btn-outline-success me-2" type="submit">Поиск</button>
       {{ form.name }}
     </form>
+    {% endif %}
     <ul class="nav col-12 col-lg-auto justify-content-center mb-md-0">
       {% if request.user.is_authenticated %}
-        <li><a href="#" class="nav-link px-3 link-secondary">{{ request.user.username }}</a></li>
-        <button class="btn btn-outline-secondary">Выйти</button>
+        <li><a href="{% url 'user:profile' request.user.pk %}" class="nav-link px-3 link-secondary">{{ request.user.username }}</a></li>
+        <li><a href="{% url 'user:logout' %}" class="btn btn-outline-secondary">Выйти</a></li>
       {% else %}
         <li><a href="{% url 'user:sign-in' %}" class="btn btn-outline-info me-2">Войти</a></li>
         <li><a href="{% url 'user:sign-up' %}"  class="btn btn-warning">Регистрация</a></li>
