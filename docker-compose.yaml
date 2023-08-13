@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  web:
+    restart: unless-stopped
+    container_name: web
+    command: python manage.py runserver 0.0.0.0:8000
+    build: .
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  redis:
+    restart: unless-stopped
+    container_name: redis
+    image: redis:7-alpine
+
+  worker:
+    restart: unless-stopped
+    container_name: celery_worker
+    build: .
+    command: celery -A djangoWeather worker --pool=solo -l info
+    env_file:
+      - .env.docker
+    depends_on:
+      - web
+      - redis

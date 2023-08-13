@@ -19,7 +19,7 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
 
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -130,14 +130,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static/']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Celery
-# command: celery -A djangoWeather worker --pool=solo -l info
-CELERY_BROKER_URL = f'redis://{os.environ.get("REDIS_HOST", "127.0.0.1")}:{os.environ.get("REDIS_PORT", "6379")}/0'
-CELERY_RESULT_BACKEND = f'redis://{os.environ.get("REDIS_HOST", "127.0.0.1")}:{os.environ.get("REDIS_PORT", "6379")}/0'
 
 # Cache
-REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
-REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+REDIS_HOST = env.str('REDIS_HOST')
+REDIS_PORT = env.str('REDIS_PORT')
 
 CACHES = {
     "default": {
@@ -148,6 +144,13 @@ CACHES = {
         }
     }
 }
+
+
+# Celery
+# command: celery -A djangoWeather worker --pool=solo -l info
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}/0'
+
 
 # Django Rest Framework
 REST_FRAMEWORK = {
