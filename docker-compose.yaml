@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  web:
+    restart: unless-stopped
+    container_name: web
+    command: python manage.py runserver 0.0.0.0:8000
+    build: .
+    env_file:
+      - .env.docker
+    volumes:
+      - .:/usr/src/app/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - db
+
+  redis:
+    restart: unless-stopped
+    container_name: redis
+    image: redis:7-alpine
+
+  worker:
+    restart: unless-stopped
+    container_name: celery_worker
+    build: .
+    command: celery -A djangoWeather worker --pool=solo -l info
+    env_file:
+      - .env.docker
+    depends_on:
+      - web
+      - redis
+
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_NAME}
+
+volumes:
+  postgres_data:
