@@ -14,6 +14,7 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+      - pgdb
 
   redis:
     restart: unless-stopped
@@ -30,3 +31,21 @@ services:
     depends_on:
       - web
       - redis
+
+  pgdb:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    container_name: pgdb
+    hostname: pgdb
+    env_file:
+      - ./.env.docker
+    volumes:
+      - pgdb:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    environment:
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+volumes:
+  pgdb:
