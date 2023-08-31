@@ -33,12 +33,12 @@ class OpenWeatherMixin(UrlMixin):
                 'city': 'Данного города не существует или вы ввели неверные данные.'
             }
 
-    def get_weatherdata_for_day(self, city: str = None):
+    def get_weatherdata_for_day(self, city: str = None) -> dict:
         url: str = self.OPENWEATHERMAP_URL.format(city)
         response: dict = self.try_to_get(url)
         return response
 
-    def get_weatherdata_every_3h(self, city: str = None):
+    def get_weatherdata_every_3h(self, city: str = None) -> dict:
         url: str = self.MORE_DATA_OPENWEATHERMAP_URL.format(city)
         response: dict = self.try_to_get(url)
         return response
